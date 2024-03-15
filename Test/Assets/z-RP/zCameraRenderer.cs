@@ -2,7 +2,7 @@
 using UnityEngine;
 using UnityEngine.Rendering;
 
-public class zCameraRenderer
+public partial class zCameraRenderer
 {
     public ScriptableRenderContext context;
     public Camera camera;
@@ -12,20 +12,27 @@ public class zCameraRenderer
         this.context = context;
         this.camera = camera;
 
+#if UNITY_EDITOR
+        PrepareBuffer();
+        PrepareForSceneWindow();
+#endif
         if (!Cull())
             return;
 
         Setup();
         DrawVisibleGeometry();
+        DrawVisibleTransparentGeometry();
+
+#if UNITY_EDITOR
+        DrawUnsupportedShaders();
+        DrawGizmos();
+#endif
         Submit();
     }
 
-    const string bufferName = "Render Camera";
+    readonly CommandBuffer buffer = new();
 
-    readonly CommandBuffer buffer = new CommandBuffer
-    {
-        name = bufferName
-    };
+    string SampleName { get; set; } = "Render Camera";
 
     void ExecuteBuffer()
     {
@@ -36,8 +43,11 @@ public class zCameraRenderer
     void Setup()
     {
         context.SetupCameraProperties(camera);
-        buffer.ClearRenderTarget(true, true, Color.clear);
-        buffer.BeginSample(bufferName);
+        buffer.ClearRenderTarget(
+            camera.clearFlags <= CameraClearFlags.Depth,
+            camera.clearFlags == CameraClearFlags.Color,
+            camera.clearFlags == CameraClearFlags.Color ? camera.backgroundColor.linear : Color.clear);
+        buffer.BeginSample(SampleName);
         ExecuteBuffer();
     }
 
@@ -56,31 +66,32 @@ public class zCameraRenderer
 
     void DrawVisibleGeometry()
     {
-        var sortingSettings = new SortingSettings(camera);
-        sortingSettings.criteria = SortingCriteria.CommonOpaque;
-
+        var sortingSettings = new SortingSettings(camera)
+        {
+            criteria = SortingCriteria.CommonOpaque
+        };
         var drawingSettings = new DrawingSettings(unlitShaderTagId, sortingSettings);
         var filteringSettings = new FilteringSettings(RenderQueueRange.opaque);
 
-        context.DrawRenderers(
-                cullingResults, ref drawingSettings, ref filteringSettings
-            );
+        context.DrawRenderers(cullingResults, ref drawingSettings, ref filteringSettings);
 
         context.DrawSkybox(camera);
+    }
+    void DrawVisibleTransparentGeometry()
+    {
+        var sortingSettings = new SortingSettings(camera)
+        {
+            criteria = SortingCriteria.CommonTransparent
+        };
+        var drawingSettings = new DrawingSettings(unlitShaderTagId, sortingSettings);
+        var filteringSettings = new FilteringSettings(RenderQueueRange.transparent);
 
-        sortingSettings.criteria = SortingCriteria.CommonTransparent;
-        drawingSettings.sortingSettings = sortingSettings;
-        filteringSettings.renderQueueRange = RenderQueueRange.transparent;
-
-        context.DrawRenderers(
-            cullingResults, ref drawingSettings, ref filteringSettings
-        );
-
+        context.DrawRenderers(cullingResults, ref drawingSettings, ref filteringSettings);
     }
 
     void Submit()
     {
-        buffer.EndSample(bufferName);
+        buffer.EndSample(SampleName);
         ExecuteBuffer();
         context.Submit();
     }
