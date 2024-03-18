@@ -64,6 +64,7 @@ public partial class CameraRenderer
     }
 
     static ShaderTagId unlitShaderTagId = new ShaderTagId("SRPDefaultUnlit");
+    static ShaderTagId zLitShaderTagId = new ShaderTagId("zLit");
 
     void DrawVisibleGeometry(bool useDynamicBatching, bool useGPUInstancing)
     {
@@ -76,6 +77,8 @@ public partial class CameraRenderer
             enableDynamicBatching = useDynamicBatching,
             enableInstancing = useGPUInstancing
         };
+        drawingSettings.SetShaderPassName(1, zLitShaderTagId);
+
         var filteringSettings = new FilteringSettings(RenderQueueRange.opaque);
 
         context.DrawRenderers(cullingResults, ref drawingSettings, ref filteringSettings);
