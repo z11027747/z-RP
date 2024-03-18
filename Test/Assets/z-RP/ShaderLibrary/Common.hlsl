@@ -17,4 +17,18 @@
 #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/UnityInstancing.hlsl"
 #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/SpaceTransforms.hlsl"
 
+//兼容 instancebuffer 和 cbuffer
+#if defined(UNITY_ANY_INSTANCING_ENABLED)
+    #define zBUFFER_START(name) UNITY_INSTANCING_BUFFER_START(name)
+    #define zBUFFER_END(name) UNITY_INSTANCING_BUFFER_END(name)
+    #define zDEFINE_PROP(type, var) UNITY_DEFINE_INSTANCED_PROP(type, var)
+    #define zACCESS_PROP(arr, var) UNITY_ACCESS_INSTANCED_PROP(arr, var)
+#else
+    #define zBUFFER_START(name) CBUFFER_START(name)
+    #define zBUFFER_END(name) CBUFFER_END
+    #define zDEFINE_PROP(type, var) type var;
+    #define zACCESS_PROP(arr, var) var
+#endif
+
+
 #endif

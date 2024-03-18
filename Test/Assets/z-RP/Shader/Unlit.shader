@@ -22,12 +22,7 @@ Shader "zRP/Unlit" {
 			#pragma multi_compile_instancing
 			#pragma vertex UnlitPassVertex
 			#pragma fragment UnlitPassFragment
-
-			#if INSTANCING_ON
-				#include "UnlitPass_Instance.hlsl"
-			#else
-				#include "UnlitPass.hlsl"
-			#endif
+			#include "UnlitPass.hlsl"
 
 			ENDHLSL
 		}
