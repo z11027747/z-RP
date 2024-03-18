@@ -5,11 +5,21 @@ using UnityEngine.Rendering;
 
 public class zRenderPipeline : RenderPipeline
 {
+    public zRenderPipeline(bool useDynamicBatching, bool useGPUInstancing, bool useSRPBatcher)
+    {
+        GraphicsSettings.useScriptableRenderPipelineBatching = useSRPBatcher;
+        this.useDynamicBatching = useDynamicBatching;
+        this.useGPUInstancing = useGPUInstancing;
+    }
+
     protected override void Render(ScriptableRenderContext context, Camera[] cameras)
     {
     }
 
-    public zCameraRenderer renderer = new();
+    public CameraRenderer renderer = new();
+
+    bool useDynamicBatching;
+    bool useGPUInstancing;
 
     protected override void Render(ScriptableRenderContext context, List<Camera> cameras)
     {
@@ -17,7 +27,8 @@ public class zRenderPipeline : RenderPipeline
 
         for (int i = 0; i < cameras.Count; i++)
         {
-            renderer.Render(context, cameras[i]);
+            renderer.Render(context, cameras[i],
+                            useDynamicBatching, useGPUInstancing);
         }
     }
 }
