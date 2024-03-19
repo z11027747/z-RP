@@ -10,8 +10,10 @@ public class zRenderPipelineAsset : RenderPipelineAsset
     public bool useGPUInstancing = true;
     public bool useSRPBatcher = true;
 
+    public ShadowSettings shadows = default;
+
     protected override RenderPipeline CreatePipeline()
     {
-        return new zRenderPipeline(useDynamicBatching, useGPUInstancing, useSRPBatcher);
+        return new zRenderPipeline(useDynamicBatching, useGPUInstancing, useSRPBatcher, shadows);
     }
 }

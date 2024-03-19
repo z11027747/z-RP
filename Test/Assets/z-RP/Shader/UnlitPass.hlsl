@@ -17,7 +17,7 @@ struct Varyings {
 zBUFFER_START(UnityPerMaterial)
 	zDEFINE_PROP(float4, _BaseMap_ST)
 	zDEFINE_PROP(float4, _BaseColor)
-	zDEFINE_PROP(float, _Cutoff)
+	zDEFINE_PROP(half, _Cutoff)
 zBUFFER_END(UnityPerMaterial)
 
 TEXTURE2D(_BaseMap);
@@ -38,12 +38,12 @@ Varyings UnlitPassVertex (Attributes input) {
 half4 UnlitPassFragment (Varyings input) : SV_TARGET {
 	UNITY_SETUP_INSTANCE_ID(input);
 
-	float4 baseMap = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, input.baseUV);
-	float4 baseColor = zACCESS_PROP(UnityPerMaterial, _BaseColor);
-	float4 base = baseMap * baseColor;
+	half4 baseMap = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, input.baseUV);
+	half4 baseColor = zACCESS_PROP(UnityPerMaterial, _BaseColor);
+	half4 base = baseMap * baseColor;
 
 #if defined(_CLIPPING)
-	float cutoff = zACCESS_PROP(UnityPerMaterial, _Cutoff);
+	half cutoff = zACCESS_PROP(UnityPerMaterial, _Cutoff);
 	clip(base.a - cutoff);
 #endif
 

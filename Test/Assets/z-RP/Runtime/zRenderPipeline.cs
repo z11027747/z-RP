@@ -5,11 +5,18 @@ using UnityEngine.Rendering;
 
 public class zRenderPipeline : RenderPipeline
 {
-    public zRenderPipeline(bool useDynamicBatching, bool useGPUInstancing, bool useSRPBatcher)
+    bool useDynamicBatching;
+    bool useGPUInstancing;
+    ShadowSettings shadows;
+
+    public zRenderPipeline(bool useDynamicBatching, bool useGPUInstancing, bool useSRPBatcher,
+                           ShadowSettings shadows)
     {
+        GraphicsSettings.lightsUseLinearIntensity = true;
         GraphicsSettings.useScriptableRenderPipelineBatching = useSRPBatcher;
         this.useDynamicBatching = useDynamicBatching;
         this.useGPUInstancing = useGPUInstancing;
+        this.shadows = shadows;
     }
 
     protected override void Render(ScriptableRenderContext context, Camera[] cameras)
@@ -18,9 +25,6 @@ public class zRenderPipeline : RenderPipeline
 
     public CameraRenderer renderer = new();
 
-    bool useDynamicBatching;
-    bool useGPUInstancing;
-
     protected override void Render(ScriptableRenderContext context, List<Camera> cameras)
     {
         base.Render(context, cameras);
@@ -28,7 +32,8 @@ public class zRenderPipeline : RenderPipeline
         for (int i = 0; i < cameras.Count; i++)
         {
             renderer.Render(context, cameras[i],
-                            useDynamicBatching, useGPUInstancing);
+                            useDynamicBatching, useGPUInstancing, 
+                            shadows);
         }
     }
 }

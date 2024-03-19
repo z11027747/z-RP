@@ -7,8 +7,11 @@ public partial class CameraRenderer
     public ScriptableRenderContext context;
     public Camera camera;
 
+    public Lighting lighting = new();
+
     public void Render(ScriptableRenderContext context, Camera camera,
-                        bool useDynamicBatching, bool useGPUInstancing)
+                        bool useDynamicBatching, bool useGPUInstancing,
+                        ShadowSettings shadowSettings)
     {
         this.context = context;
         this.camera = camera;
@@ -17,12 +20,15 @@ public partial class CameraRenderer
         PrepareBuffer();
         PrepareForSceneWindow();
 #endif
-        if (!Cull())
+        if (!Cull(shadowSettings.maxDistance))
             return;
 
         Setup();
+
+        lighting.Setup(context, cullingResults, shadowSettings);
+
         DrawVisibleGeometry(useDynamicBatching, useGPUInstancing);
-        DrawVisibleTransparentGeometry();
+        DrawVisibleTransparentGeometry(useDynamicBatching, useGPUInstancing);
 
 #if UNITY_EDITOR
         DrawUnsupportedShaders();
@@ -35,7 +41,7 @@ public partial class CameraRenderer
 
     string SampleName { get; set; } = "Render Camera";
 
-    void ExecuteBuffer()
+    void ExecuteCmdBuffer()
     {
         context.ExecuteCommandBuffer(buffer);
         buffer.Clear();
@@ -44,19 +50,22 @@ public partial class CameraRenderer
     void Setup()
     {
         context.SetupCameraProperties(camera);
+        
         buffer.ClearRenderTarget(
             camera.clearFlags <= CameraClearFlags.Depth,
             camera.clearFlags == CameraClearFlags.Color,
             camera.clearFlags == CameraClearFlags.Color ? camera.backgroundColor.linear : Color.clear);
         buffer.BeginSample(SampleName);
-        ExecuteBuffer();
+        ExecuteCmdBuffer();
     }
 
     CullingResults cullingResults;
-    bool Cull()
+
+    bool Cull(float maxShadowDistance)
     {
         if (camera.TryGetCullingParameters(out ScriptableCullingParameters p))
         {
+            p.shadowDistance = Mathf.Min(maxShadowDistance, camera.farClipPlane);
             cullingResults = context.Cull(ref p);
             return true;
         }
@@ -85,13 +94,18 @@ public partial class CameraRenderer
 
         context.DrawSkybox(camera);
     }
-    void DrawVisibleTransparentGeometry()
+    void DrawVisibleTransparentGeometry(bool useDynamicBatching, bool useGPUInstancing)
     {
         var sortingSettings = new SortingSettings(camera)
         {
             criteria = SortingCriteria.CommonTransparent
         };
-        var drawingSettings = new DrawingSettings(unlitShaderTagId, sortingSettings);
+        var drawingSettings = new DrawingSettings(unlitShaderTagId, sortingSettings)
+        {
+            enableDynamicBatching = useDynamicBatching,
+            enableInstancing = useGPUInstancing
+        };
+        drawingSettings.SetShaderPassName(1, zLitShaderTagId);
         var filteringSettings = new FilteringSettings(RenderQueueRange.transparent);
 
         context.DrawRenderers(cullingResults, ref drawingSettings, ref filteringSettings);
@@ -100,7 +114,7 @@ public partial class CameraRenderer
     void Submit()
     {
         buffer.EndSample(SampleName);
-        ExecuteBuffer();
+        ExecuteCmdBuffer();
         context.Submit();
     }
 }
