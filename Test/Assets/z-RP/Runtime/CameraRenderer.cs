@@ -23,9 +23,13 @@ public partial class CameraRenderer
         if (!Cull(shadowSettings.maxDistance))
             return;
 
-        Setup();
+        buffer.BeginSample(SampleName);
+        ExecuteCmdBuffer();
 
         lighting.Setup(context, cullingResults, shadowSettings);
+        buffer.EndSample(SampleName);
+
+        Setup();
 
         DrawVisibleGeometry(useDynamicBatching, useGPUInstancing);
         DrawVisibleTransparentGeometry(useDynamicBatching, useGPUInstancing);
@@ -34,6 +38,7 @@ public partial class CameraRenderer
         DrawUnsupportedShaders();
         DrawGizmos();
 #endif
+        lighting.Cleanup();
         Submit();
     }
 
@@ -50,11 +55,12 @@ public partial class CameraRenderer
     void Setup()
     {
         context.SetupCameraProperties(camera);
-        
+
         buffer.ClearRenderTarget(
             camera.clearFlags <= CameraClearFlags.Depth,
             camera.clearFlags == CameraClearFlags.Color,
             camera.clearFlags == CameraClearFlags.Color ? camera.backgroundColor.linear : Color.clear);
+
         buffer.BeginSample(SampleName);
         ExecuteCmdBuffer();
     }
