@@ -27,6 +27,7 @@ public partial class CameraRenderer
         ExecuteCmdBuffer();
 
         lighting.Setup(context, cullingResults, shadowSettings);
+
         buffer.EndSample(SampleName);
 
         Setup();

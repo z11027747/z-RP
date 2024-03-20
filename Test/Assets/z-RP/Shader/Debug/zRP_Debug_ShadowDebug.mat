@@ -7,8 +7,8 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: zRP_Lit
-  m_Shader: {fileID: 4800000, guid: 057d24f2acdaa7b43b922d64322fa5a1, type: 3}
+  m_Name: zRP_Debug_ShadowDebug
+  m_Shader: {fileID: 4800000, guid: a5255c3e28d3bdc4681e87da078d94ec, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
@@ -16,27 +16,15 @@ Material:
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: 2000
+  m_CustomRenderQueue: -1
   stringTagMap: {}
   disabledShaderPasses: []
   m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
-    m_TexEnvs:
-    - _BaseMap:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
+    m_TexEnvs: []
     m_Ints: []
     m_Floats:
-    - _Clipping: 0
-    - _Cutoff: 0.5
-    - _DstBlend: 0
-    - _Metallic: 0
-    - _PremulAlpha: 0
-    - _Smoothness: 0.5
-    - _SrcBlend: 1
-    - _ZWrite: 1
-    m_Colors:
-    - _BaseColor: {r: 0.29800045, g: 0.38053414, b: 0.38679245, a: 0.3529412}
+    - _TileIndex: 0
+    m_Colors: []
   m_BuildTextureStacks: []

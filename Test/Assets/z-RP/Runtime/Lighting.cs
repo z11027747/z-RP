@@ -38,9 +38,11 @@ public class Lighting
     static int dirLightCountId = Shader.PropertyToID("_DirectionalLightCount");
     static int dirLightColorsId = Shader.PropertyToID("_DirectionalLightColors");
     static int dirLightDirectionsId = Shader.PropertyToID("_DirectionalLightDirections");
+    static int dirLightShadowDataId = Shader.PropertyToID("_DirectionalLightShadowData");
 
     static Vector4[] dirLightColors = new Vector4[maxDirLightCount];
     static Vector4[] dirLightDirections = new Vector4[maxDirLightCount];
+    static Vector4[] dirLightShadowData = new Vector4[maxDirLightCount];
 
     void SetupLights()
     {
@@ -51,8 +53,9 @@ public class Lighting
             VisibleLight visibleLight = visibleLights[i];
             if (visibleLight.lightType == LightType.Directional)
             {
-                SetupDirectionalLight(dirLightCount++, ref visibleLight);
-                if (dirLightCount >= maxDirLightCount)
+                var dirLightIndex = dirLightCount;
+                SetupDirectionalLight(dirLightIndex, ref visibleLight);
+                if (dirLightCount++ >= maxDirLightCount)
                 {
                     break;
                 }
@@ -62,13 +65,14 @@ public class Lighting
         buffer.SetGlobalInt(dirLightCountId, visibleLights.Length);
         buffer.SetGlobalVectorArray(dirLightColorsId, dirLightColors);
         buffer.SetGlobalVectorArray(dirLightDirectionsId, dirLightDirections);
+        buffer.SetGlobalVectorArray(dirLightShadowDataId, dirLightShadowData);
     }
 
-    void SetupDirectionalLight(int index, ref VisibleLight visibleLight)
+    void SetupDirectionalLight(int dirLightIndex, ref VisibleLight visibleLight)
     {
-        dirLightColors[index] = visibleLight.finalColor;
-        dirLightDirections[index] = -visibleLight.localToWorldMatrix.GetColumn(2);
-        shadows.ReserveDirectionalShadows(visibleLight.light, index);
+        dirLightColors[dirLightIndex] = visibleLight.finalColor;
+        dirLightDirections[dirLightIndex] = -visibleLight.localToWorldMatrix.GetColumn(2);
+        dirLightShadowData[dirLightIndex] = shadows.ReserveDirectionalShadows(visibleLight.light, dirLightIndex);
     }
 
     public void Cleanup()
