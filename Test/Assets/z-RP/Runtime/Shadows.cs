@@ -99,7 +99,7 @@ public class Shadows
         buffer.SetGlobalInt(cascadeCountId, settings.directional.cascadeCount);
         buffer.SetGlobalVectorArray(cascadeCullingSpheresId, cascadeCullingSpheres);
         buffer.SetGlobalMatrixArray(dirShadowMatricesId, dirShadowMatrices);
-        buffer.SetGlobalFloat(shadowDistanceId, settings.maxDistance);
+        buffer.SetGlobalVector(shadowDistanceFadeId, new Vector4(1f / settings.maxDistance, 1f / settings.distanceFade));
         buffer.EndSample(bufferName);
         ExecuteCmdBuffer();
     }
@@ -192,7 +192,7 @@ public class Shadows
 
     static int cascadeCountId = Shader.PropertyToID("_CascadeCount");
     static int cascadeCullingSpheresId = Shader.PropertyToID("_CascadeCullingSpheres");
-    static int shadowDistanceId = Shader.PropertyToID("_ShadowDistance");
+    static int shadowDistanceFadeId = Shader.PropertyToID("_ShadowDistanceFade");
 
     static Vector4[] cascadeCullingSpheres = new Vector4[maxCascades];
     // static GameObject[] cascadeCullingSphereGos = new GameObject[maxCascades];

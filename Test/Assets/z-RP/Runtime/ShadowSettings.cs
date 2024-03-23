@@ -7,8 +7,11 @@ using UnityEngine;
 [System.Serializable]
 public class ShadowSettings
 {
-    [Min(0f)]
-    public float maxDistance = 100f;
+ 	[Min(0.001f)]
+	public float maxDistance = 100f;
+	
+	[Range(0.001f, 1f)]
+	public float distanceFade = 0.1f;
 
     public enum TextureSize
     {
@@ -23,7 +26,6 @@ public class ShadowSettings
     [System.Serializable]
     public struct Directional
     {
-
         public TextureSize atlasSize;
 
         [Range(1, 4)]
